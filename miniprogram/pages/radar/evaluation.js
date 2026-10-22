@@ -1,0 +1,13 @@
+'use strict';
+const AREAS=[['capability','能力强度','能干什么，做得好不好'],['reliability','可靠与成熟','能否稳定完成任务'],['fit','对你有多大用','对应你的哪些实际需求'],['integration','组合与替代价值','比已有办法改善了什么']];
+const STATES={scored:'有依据的评分',described:'已有说明，暂不打分',unknown:'未知',unverified:'未验证',not_applicable:'不适用'};
+const TYPES={official:'官方说法',local_test:'本地核查记录',maintainer_report:'维护方验收',ai_judgment:'AI初步判断',user_feedback:'用户反馈'};
+const CATEGORY={software:'软件与开源项目',skill:'Skill／AI任务能力包',workflow:'工作流',ai_service:'AI模型与在线服务',rule:'规则与方法'};
+const CHECKS={software:['能做什么与结果质量','安装、运行与重复使用','速度和设备要求','学习与排错难度','维护、安全和许可','与已有工程接入'],skill:['任务覆盖','实际执行效果','工具调用与环境','重复使用是否稳定','失败时怎么处理','权限与版本兼容'],workflow:['最终成果','步骤是否走全','还需多少人工','工具交接','中断恢复','复现难度','相比旧办法的收益','维护成本'],ai_service:['实际任务效果','准确与稳定','速度与费用','数据隐私','接口和使用限制','持续使用与迁移'],rule:['适用任务','执行是否明确','证据是否可追溯','失败与未知如何处理','实际使用效果']};
+const RISK=[['cost','费用'],['privacy','隐私'],['security','安全'],['license','使用许可'],['platform','平台限制'],['maintenance','维护']];
+function label(j){return j.status==='scored'?j.score+' / 5分':STATES[j.status]||'未知';}
+function present(e){const history=Array.isArray(e.evaluations)?e.evaluations:[],v=history[history.length-1],category=v?v.category:e.kind==='工作流'?'workflow':e.kind==='规则'?'rule':e.kind==='能力'||/skills?/i.test(e.title)?'skill':/^(Exa|Tavily)（/.test(e.title)?'ai_service':'software';
+ const areas=AREAS.map(([key,title,question])=>{const j=v&&v.areas[key];return{key,title,question,label:j?label(j):'未知',summary:j?j.summary:'尚未按这方面核查；旧关注星级不代替这里的评价。',checks:j?(j.checks||[]).map(c=>({...c,labelText:label(c),references:c.evidence_ids.join('、')})):[],references:j?j.evidence_ids.join('、'):''};});
+ return{...e,attention:e.proposed_rating!=null?e.proposed_rating:e.rating,attentionLabel:(e.proposed_rating??e.rating)!=null?'个人关注：'+(e.proposed_rating??e.rating)+'星（旧建议）':'个人关注：待了解',hasEvaluation:!!v,categoryLabel:CATEGORY[category],evaluationLabel:v?'四方面初评':'四方面待评价',areas,
+ conclusion:v?v.conclusion:'已收藏，四方面评价尚未完成。先看用途和限制。',evaluationDate:v?v.date:'',objectVersion:v?v.object_version:'待核实',ruleVersion:v?v.method_version:'',scope:v?v.scope:'尚未记录具体评价场景。',confidence:v?({weak:'有限',medium:'中等',strong:'较充分'}[v.confidence]):'资料不足',confidenceReason:v?v.confidence_reason:'没有足够证据，暂不判断强弱。',evidenceRows:v?v.evidence.map(x=>({...x,typeLabel:TYPES[x.type]})):[],riskRows:RISK.map(([key,title])=>({key,title,text:v?v.risks[key]:'待核实，不能当作没有风险或费用。'})),action:v?v.action:{label:'先核实信息',reason:'现有收藏不等于已完成评价。',next:'补充当前版本、来源和真实用途，再按对应检查表核查。'},questions:v?v.questions:['当前可用版本、费用和许可是否明确？','是否有本机测试记录？'],checklist:CHECKS[category],historyRows:history.slice().reverse().map(x=>({id:x.id,date:x.date,reason:x.changed_reason,conclusion:x.conclusion})),historyCount:history.length};}
+module.exports={present};

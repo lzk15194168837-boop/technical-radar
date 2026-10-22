@@ -1,0 +1,12 @@
+{
+  "pages": [
+    "pages/radar/index",
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "技术雷达·演示",
+    "navigationBarBackgroundColor": "#F0EEE7",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F0EEE7"
+  }
+}

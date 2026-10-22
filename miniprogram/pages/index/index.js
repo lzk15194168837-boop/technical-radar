@@ -1,0 +1,1 @@
+Page({data:{text:''},input(e){this.setData({text:e.detail.value});},save(){wx.setStorageSync('radarDemoSubmission',this.data.text);wx.showToast({title:'仅保存本机演示',icon:'none'});},back(){wx.redirectTo({url:'/pages/radar/index'});}});

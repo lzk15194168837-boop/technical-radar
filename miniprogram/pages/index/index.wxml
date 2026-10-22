@@ -1,0 +1,1 @@
+<view class="page"><view>提交信息·演示</view><view>只保存在当前设备，不传电脑、不开始研究。</view><textarea bindinput="input" value="{{text}}" placeholder="输入无隐私的演示文字"/><button bindtap="save">保存本机演示</button><button bindtap="back">返回知识卡</button></view>
